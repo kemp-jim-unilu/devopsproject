@@ -1,0 +1,65 @@
+---
+
+- name: "Create Downloads folder"
+  ansible.builtin.file:
+    path: "{{ gitlab_destination }}"
+    mode: '0777'
+    state: directory
+
+- name: "Update repositories cache."
+  ansible.builtin.apt:
+    update_cache: true
+
+
+- name: "Safe system upgrade via aptitude."
+  ansible.builtin.apt:
+    upgrade: safe
+
+
+- name: "Check if GitLab configuration file already exists."
+  ansible.builtin.stat:
+    path: /etc/gitlab/gitlab.rb
+  register: gitlab_config_file
+
+
+- name: "Check if GitLab is already installed."
+  ansible.builtin.stat:
+    path: /usr/bin/gitlab-ctl
+  register: gitlab_file
+
+
+- name: "Install GitLab dependencies."
+  ansible.builtin.package:
+    name:
+      - openssh-server
+      - ca-certificates
+      - curl
+      - openssl
+      - tzdata
+    state: present
+
+- name: "Download GitLab repository installation script."
+  ansible.builtin.get_url:
+    url: "{{ gitlab_repository_installation_script_url }}"
+    dest: /tmp/gitlab_install_repository.sh
+    mode: '0777'
+    validate_certs: "{{ gitlab_download_validate_certs }}"
+  when: not gitlab_file.stat.exists
+
+
+- name: "Install GitLab repository."
+  ansible.builtin.command: bash /tmp/gitlab_install_repository.sh
+  when: not gitlab_file.stat.exists
+
+
+- name: "Define the Gitlab package name."
+  ansible.builtin.set_fact:
+    gitlab_package_name: "{{ gitlab_edition }}{{ gitlab_package_version_separator }}{{ gitlab_version }}"
+  when: gitlab_version != ''
+
+
+- name: "Install GitLab"
+  ansible.builtin.package:
+    name: "{{ gitlab_package_name | default(gitlab_edition) }}"
+    state: present
+  when: not gitlab_file.stat.exists

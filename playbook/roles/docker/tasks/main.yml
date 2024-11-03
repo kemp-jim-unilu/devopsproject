@@ -1,0 +1,56 @@
+---
+
+- name: Update repositories cache.
+  ansible.builtin.apt:
+    update_cache: true
+# This is already done by the gitlab script
+# - name: Safe system upgrade via aptitude.
+#  apt:
+#    upgrade: safe
+- name: Install packages required by Docker.
+  ansible.builtin.apt:
+    name: "{{ packages }}"
+  vars:
+    packages:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - software-properties-common
+
+
+- name: Add Docker GPG apt Key
+  ansible.builtin.apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    state: present
+
+- name: Add Docker Repository
+  ansible.builtin.apt_repository:
+    repo: deb https://download.docker.com/linux/ubuntu focal stable
+    state: present
+
+- name: Update repositories cache.
+  ansible.builtin.apt:
+    update_cache: true
+
+
+- name: Install Docker packages.
+  ansible.builtin.apt:
+    name: "{{ dockerpackages }}"
+  vars:
+    dockerpackages:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+      - docker-buildx-plugin
+      - docker-compose-plugin
+
+
+- name: Add users to docker group.
+  ansible.builtin.user:
+    name: vagrant
+    append: true
+    groups: docker
+
+- name: Verify docker installation
+  ansible.builtin.command: docker --version
+  changed_when: false

@@ -1,0 +1,43 @@
+# vim: ts=2
+---
+- name: Setup git CI server
+  hosts: all
+  remote_user: vagrant
+  become: true
+  become_method: ansible.builtin.sudo
+
+  vars:
+    vhome: /home/vagrant
+
+  tasks:
+  - name: Download and install gitlab
+    ansible.builtin.include_role:
+      name: gitlab
+
+  - name: Install docker
+    ansible.builtin.include_role:
+      name: docker
+
+# copying all the scripts into /tmp is better due to problems with permissions
+  - name: Copy scripts to vagrant vm
+    ansible.builtin.copy:
+      src: ./myscripts
+      dest: /tmp
+      mode: u=rwx,g=rwx,o=rwx
+
+  - name: Copy initial repo to vagrant vm
+    ansible.builtin.copy:
+      src: ./therepo
+      dest: /home/vagrant
+      mode: u=rwx,g=rwx,o=rwx
+
+  - name: Configure gitlab
+    ansible.builtin.include_role:
+      name: configure-gitlab
+
+  - name: Setup git repo
+    ansible.builtin.include_role:
+      name: setup-repo
+
+  - name: Setup GitLab Runner
+    ansible.builtin.command: sh /tmp/myscripts/setup-runner.sh
