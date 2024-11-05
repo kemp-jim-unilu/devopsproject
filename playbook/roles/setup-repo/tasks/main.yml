@@ -6,41 +6,78 @@
 
 - name: Create project on CI server through gitlab API
   ansible.builtin.uri:
-    url: http://192.168.56.9/gitlab/api/v4/projects?name=MavenHelloWorldProject
+    url: "http://{{ ci_server_address }}/api/v4/projects?name=MavenHelloWorldProject"
     method: POST
     headers:
       PRIVATE-TOKEN: "{{ user_pat }}"
+  ignore_errors: true
 
 - name: Git init
-  ansible.builtin.command: git init
+  ansible.builtin.command:
+    argv:
+      - git
+      - init
     chdir: "{{ vhome }}/therepo"
+  ignore_errors: true
 
 - name: Git remote add
-  ansible.builtin.command: git remote add origin http://192.168.56.9/gitlab/user/MavenHelloWorldProject
+  ansible.builtin.command:
+    argv:
+      - git
+      - remote
+      - add
+      - origin
+      - http:// {{ ci_server_address }}/{{ server_user_name }}/MavenHelloWorldProject
     chdir: "{{ vhome }}/therepo"
+  ignore_errors: true
 
 - name: Git config set user.name
-  ansible.builtin.command: git config --global user.name "user"
+  ansible.builtin.command:
+    argv:
+      - git
+      - config
+      - --global
+      - user.name
+      - "user"
     chdir: "{{ vhome }}/therepo"
+  ignore_errors: true
 
 - name: Git config set user.email
-  ansible.builtin.command: git config --global user.email "user@gmail.com"
+  ansible.builtin.command:
+    argv:
+      - git
+      - config
+      - --global
+      - user.email
+      - "user@gmail.com"
     chdir: "{{ vhome }}/therepo"
-
-- name: Copy .gitignore into repo
-  ansible.builtin.copy:
-    src: ./data/.gitignore
-    dest: "{{ vhome }}/therepo"
-    mode: u=rwx,g=rwx,o=rwx
+  ignore_errors: true
 
 - name: Git add .
-  ansible.builtin.command: git add .
+  ansible.builtin.command:
+    argv:
+      - git
+      - add
+      - .
     chdir: "{{ vhome }}/therepo"
+  ignore_errors: true
 
-- name: git commit
-  ansible.builtin.command: git commit -m 'Initial commit'
+- name: Git commit
+  ansible.builtin.command:
+    argv:
+      - git
+      - commit
+      - -m
+      - 'Initial commit'
     chdir: "{{ vhome }}/therepo"
+  ignore_errors: true
 
-- name: git push
-  ansible.builtin.command: git push http://user:r00tr00t@192.168.56.9/gitlab/user/MavenHelloWorldProject master
+- name: Git push
+  ansible.builtin.command:
+    argv:
+      - git
+      - push
+      - http://{{ server_user_name }}:{{ server_user_password }}@{{ ci_server_address }}/{{ server_user_name }}/MavenHelloWorldProject
+      - master
     chdir: "{{ vhome }}/therepo"
+  ignore_errors: true

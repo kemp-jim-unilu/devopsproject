@@ -2,7 +2,7 @@
   ansible.builtin.replace:
     path: /etc/gitlab/gitlab.rb
     regexp: "external_url 'http://gitlab.example.com'"
-    replace: "external_url 'http://192.168.56.9/gitlab'"
+    replace: "external_url 'http://{{ ci_server_address }}'"
 
 - name: Change puma port in /etc/gitlab/gitlab.rb
   ansible.builtin.replace:
@@ -25,6 +25,7 @@
 
 - name: Create new user with gitlab-rails runner and save PAT
   ansible.builtin.command: gitlab-rails runner /tmp/myscripts/gitlab-user-create.rb
+  ignore_errors: true
   register: user_pat
   changed_when: user_pat.rc != 0
   when: user_pat is undefined

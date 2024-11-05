@@ -8,6 +8,11 @@
 
   vars:
     vhome: /home/vagrant
+    ci_server_address: 192.168.56.9/gitlab
+    # TODO: pass these values into the ruby script
+    server_root_password: "r00tr00t"
+    server_user_name: "user"
+    server_user_password: "us3rus3r"
 
   tasks:
   - name: Download and install gitlab
@@ -39,5 +44,6 @@
     ansible.builtin.include_role:
       name: setup-repo
 
-  - name: Setup GitLab Runner
-    ansible.builtin.command: sh /tmp/myscripts/setup-runner.sh
+  - name: Configure gitlab runner
+    ansible.builtin.include_role:
+      name: gitlab-runner

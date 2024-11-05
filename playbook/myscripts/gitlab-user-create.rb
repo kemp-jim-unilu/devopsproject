@@ -1,11 +1,5 @@
 #!/usr/bin/env ruby
-userCheck = User.find_by_username('user')
-
-if User.exists?(:username => "user")
-  
-else
-
-user = User.new(username: 'user', email: 'test@gmail.com', name: 'user', password: 'r00tr00t', password_confirmation: 'r00tr00t')
+user = User.new(username: 'user', email: 'test@gmail.com', name: 'user', password: 'us3rus3r', password_confirmation: 'us3rus3r')
 user.assign_personal_namespace(Organizations::Organization.default_organization)
 user.skip_confirmation!
 user.save!
@@ -18,5 +12,3 @@ token = user.personal_access_tokens.create(
         )
 token.save!
 puts(token.token)
-
-end
