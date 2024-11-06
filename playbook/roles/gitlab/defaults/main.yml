@@ -3,7 +3,7 @@
 gitlab_destination: "{{ vhome }}/Tools_download"
 
 
-gitlab_external_url: "https://gitlab/"
+#gitlab_external_url: "https://gitlab/"
 gitlab_git_data_dir: "/var/opt/gitlab/git-data"
 gitlab_edition: "gitlab-ce"
 gitlab_version: "" # 17.5.1-ce.0

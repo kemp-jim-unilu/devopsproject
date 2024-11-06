@@ -27,7 +27,7 @@
       - remote
       - add
       - origin
-      - http:// {{ ci_server_address }}/{{ server_user_name }}/MavenHelloWorldProject
+      - http://{{ ci_server_address }}/{{ server_user_name }}/MavenHelloWorldProject
     chdir: "{{ vhome }}/therepo"
   ignore_errors: true
 
