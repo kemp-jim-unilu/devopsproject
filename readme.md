@@ -1,1 +1,6 @@
-git>=1.7.1 needed on host for ansible.builtin.git
+
+How to restart the provisioning:
+vagrant reload --provision
+
+How to lint the playbook:
+ansible-lint playbook

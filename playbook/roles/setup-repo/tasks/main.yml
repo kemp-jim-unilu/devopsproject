@@ -3,6 +3,7 @@
     path: "{{ vhome }}/therepo"
     owner: vagrant
     recurse: true
+  become: true
 
 - name: Create project on CI server through gitlab API
   ansible.builtin.uri:

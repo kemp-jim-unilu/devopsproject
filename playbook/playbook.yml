@@ -3,7 +3,6 @@
 - name: Setup git CI server
   hosts: all
   remote_user: vagrant
-  become: true
   become_method: ansible.builtin.sudo
 
   vars:
@@ -29,12 +28,21 @@
       src: ./myscripts
       dest: /tmp
       mode: u=rwx,g=rwx,o=rwx
+    become: true
 
   - name: Copy initial repo to vagrant vm
     ansible.builtin.copy:
       src: ./therepo
       dest: /home/vagrant
       mode: u=rwx,g=rwx,o=rwx
+    become: true
+
+  - name: Create artefact repository
+    ansible.builtin.file:
+      path: "{{ vhome }}/artefact-repository"
+      mode: '0777'
+      state: directory
+    become: true
 
   - name: Configure gitlab
     ansible.builtin.include_role:
