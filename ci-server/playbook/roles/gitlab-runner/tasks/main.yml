@@ -1,0 +1,66 @@
+- name: Download gitlab-runner script
+  ansible.builtin.get_url:
+    url: https://packages.gitlab.com/install/repositories/runner/gitlab-runner/script.deb.sh
+    dest: /tmp/gitlab_runner
+    mode: '0777'
+  become: true
+
+- name: Execute gitlab-runner script
+  ansible.builtin.command: /tmp/gitlab_runner
+  become: true
+
+- name: Install gitlab-runner
+  ansible.builtin.apt:
+    name: gitlab-runner
+  become: true
+
+- name: Get registration token from CI server
+  ansible.builtin.command:
+    argv:
+      - gitlab-rails
+      - runner
+      - -e
+      - production
+      - "puts Gitlab::CurrentSettings.current_application_settings.runners_registration_token"
+  register: registration_token
+  become: true
+
+- name: Register gitlab-runner with tag integration
+  ansible.builtin.command:
+    argv:
+      - gitlab-runner
+      - register
+      - --non-interactive
+      - --url
+      - http://{{ ci_server_address }}
+      - --registration-token
+      - "{{ registration_token.stdout }}"
+      - --description
+      - docker
+      - --tag-list
+      - integration
+      - --executor
+      - docker
+      - --docker-image
+      - alpine:latest
+      - --run-untagged=true
+  become: true
+
+- name: Register gitlab-runner with tag integration-shell
+  ansible.builtin.command:
+    argv:
+      - gitlab-runner
+      - register
+      - --non-interactive
+      - --url
+      - http://{{ ci_server_address }}
+      - --registration-token
+      - "{{ registration_token.stdout }}"
+      - --description
+      - shell
+      - --tag-list
+      - integration-shell
+      - --executor
+      - shell
+      - --run-untagged=true
+  become: true
