@@ -2,8 +2,8 @@
 prompt                 = no
 days                   = 365
 distinguished_name     = req_distinguished_name
-req_extensions         = v3_req
-
+req_extensions         = req_ext
+x509_extensions        = v3_req
 
 [ req_distinguished_name ]
 countryName            = AB
@@ -19,6 +19,8 @@ basicConstraints       = CA:false
 extendedKeyUsage       = serverAuth
 subjectAltName         = @sans
 
+[req_ext]
+subjectAltName = @sans
+
 [ sans ]
-DNS.0 = localhost
-DNS.1 = myexampleserver.com
+IP.1 = 192.168.33.8

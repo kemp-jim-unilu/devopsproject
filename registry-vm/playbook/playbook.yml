@@ -7,6 +7,10 @@
 
   vars:
     vhome: /home/vagrant
+    registry_port: "5000"
+    registry_addr: "192.168.33.8"
+    registry_username: "admin"
+    registry_password: "password"
 
   tasks:
     - name: Setup docker
