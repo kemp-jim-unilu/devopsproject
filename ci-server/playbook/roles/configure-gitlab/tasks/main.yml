@@ -8,8 +8,8 @@
 - name: Change puma port in /etc/gitlab/gitlab.rb
   ansible.builtin.replace:
     path: /etc/gitlab/gitlab.rb
-    regexp: '# puma[''port''] = 8080'
-    replace: 'puma[''port''] = 8088'
+    regexp: "# puma['port'] = 8080"
+    replace: "puma['port'] = 8088"
   become: true
 
 - name: Reconfigure gitlab-ctl
