@@ -1,0 +1,1 @@
+{"virtualbox":{"/vagrant_data":{"guestpath":"/vagrant_data","hostpath":"/home/jim/Documents/uni/s3/devops/theproject/registry-vm/data","disabled":false,"__vagrantfile":true},"/vagrant":{"guestpath":"/vagrant","hostpath":"/home/jim/Documents/uni/s3/devops/theproject/registry-vm","disabled":false,"__vagrantfile":true}}}

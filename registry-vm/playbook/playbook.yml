@@ -1,0 +1,18 @@
+# vim: ts=2
+---
+- name: Setup docker registry
+  hosts: all
+  remote_user: vagrant
+  become_method: ansible.builtin.sudo
+
+  vars:
+    vhome: /home/vagrant
+
+  tasks:
+    - name: Setup docker
+      ansible.builtin.include_role:
+        name: docker
+
+    - name: Configure registry
+      ansible.builtin.include_role:
+        name: configure-registry

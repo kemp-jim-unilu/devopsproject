@@ -1,0 +1,166 @@
+- name: Run initial docker registry container
+  ansible.builtin.command:
+    argv:
+      - docker
+      - run
+      - -d
+      - -p
+      - 5000:5000
+      - --restart=always
+      - -v
+      - /reg:/var/lib/registry
+      - --name
+      - registry
+      - registry:2
+  ignore_errors: true
+  become: true
+  changed_when: true
+
+- name: Edit /lib/systemd/system/docker.service
+  ansible.builtin.replace:
+    path: /lib/systemd/system/docker.service
+    regexp: "ExecStart=/usr/bin/dockerd -H fd:// --containerd=/run/containerd/containerd.sock"
+    replace: "ExecStart=/usr/bin/dockerd -H fd:// –insecure-registry ip_address:5000"
+  become: true
+
+- name: Restart docker service
+  ansible.builtin.command:
+    argv:
+      - service
+      - docker
+      - restart
+  ignore_errors: true
+  become: true
+  changed_when: true
+
+- name: Create dir for certs
+  ansible.builtin.file:
+    path: /home/vagrant/docker_reg_certs
+    state: directory
+
+- name: Create certificate and key
+  ansible.builtin.command:
+    argv:
+      - openssl
+      - req
+      - -newkey
+      - rsa:4096
+      - -nodes
+      - -sha256
+      - -keyout
+      - docker_reg_certs/domain.key
+      - -x509
+      - -out
+      - docker_reg_certs/domain.crt
+      - -config
+      - /vagrant_data/registry.cnf
+  ignore_errors: true
+  changed_when: true
+
+- name: Create dir for certs for docker
+  ansible.builtin.file:
+    path: /etc/docker/certs.d/localhost:5000
+    state: directory
+  become: true
+
+- name: Copy certs to docker
+  ansible.builtin.copy:
+    src: /home/vagrant/docker_reg_certs/domain.crt
+    dest: /etc/docker/certs.d/localhost:5000/ca.crt
+    remote_src: true
+  become: true
+
+- name: Copy certs to system
+  ansible.builtin.copy:
+    src: /home/vagrant/docker_reg_certs/domain.crt
+    dest: /usr/local/share/ca-certificates/ca.crt
+    remote_src: true
+  become: true
+
+- name: Create dir for auth
+  ansible.builtin.file:
+    path: /home/vagrant/docker_reg_auth
+    state: directory
+
+- name: Create htpasswd with a container
+  ansible.builtin.shell:
+    cmd: docker run --rm --entrypoint htpasswd httpd:2 -Bbn admin password >> ./docker_reg_auth/htpasswd
+  ignore_errors: true
+  become: true
+  changed_when: true
+
+- name: Restart docker service
+  ansible.builtin.command:
+    argv:
+      - service
+      - docker
+      - restart
+  ignore_errors: true
+  become: true
+  changed_when: true
+
+- name: Stop registry container
+  ansible.builtin.command:
+    argv:
+      - docker
+      - stop
+      - registry
+  ignore_errors: true
+  become: true
+  changed_when: true
+
+- name: Remove registry container
+  ansible.builtin.command:
+    argv:
+      - docker
+      - rm
+      - registry
+  ignore_errors: true
+  become: true
+  changed_when: true
+
+- name: Start registry container
+  ansible.builtin.command:
+    argv:
+      - docker
+      - run
+      - -d
+      - -p
+      - 5000:5000
+      - --restart=always
+      - --name
+      - registry
+      - -v
+      - $PWD/docker_reg_certs:/certs
+      - -v
+      - $PWD/docker_reg_auth:/auth
+      - -v
+      - /reg:/var/lib/registry
+      - -e
+      - REGISTRY_HTTP_TLS_CERTIFICATE=/certs/domain.crt
+      - -e
+      - REGISTRY_HTTP_TLS_KEY=/certs/domain.key
+      - -e
+      - "REGISTRY_AUTH_HTPASSWD_REALM=Registry Realm"
+      - -e
+      - REGISTRY_AUTH_HTPASSWD_PATH=/auth/htpasswd
+      - -e
+      - REGISTRY_AUTH=htpasswd
+      - registry:2
+  ignore_errors: true
+  become: true
+  changed_when: true
+
+- name: Copy certificate to synced folder
+  ansible.builtin.copy:
+    src: /home/vagrant/docker_reg_certs/domain.crt
+    dest: /vagrant_data/
+    remote_src: true
+  become: true
+
+- name: Copy key to synced folder
+  ansible.builtin.copy:
+    src: /home/vagrant/docker_reg_certs/domain.key
+    dest: /vagrant_data/
+    remote_src: true
+  become: true
