@@ -5,7 +5,7 @@
       - run
       - -d
       - -p
-      - "{{ registry_port }}:5000"
+      - "{{ registry_port }}:{{ registry_port }}"
       - --restart=always
       - -v
       - /reg:/var/lib/registry
@@ -154,13 +154,13 @@
 - name: Copy certificate to synced folder
   ansible.builtin.copy:
     src: "{{ vhome }}/docker_reg_certs/domain.crt"
-    dest: /vagrant_data/
+    dest: "/vagrant_data/{{ registry_addr }}.crt"
     remote_src: true
   become: true
 
 - name: Copy key to synced folder
   ansible.builtin.copy:
     src: "{{ vhome }}/docker_reg_certs/domain.key"
-    dest: /vagrant_data/
+    dest: "/vagrant_data/{{ registry_addr }}.key"
     remote_src: true
   become: true

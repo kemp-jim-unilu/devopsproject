@@ -11,7 +11,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   
     ENV['LC_ALL']="en_US.UTF-8"
   
-    subconfig.vm.network "forwarded_port", guest: 5000, host: 8088, host_ip: "192.168.33.8"
+    #subconfig.vm.network "forwarded_port", guest: 5000, host: 8088, host_ip: "192.168.33.8"
     subconfig.vm.network :private_network, ip: "192.168.33.8"
 
     subconfig.vm.synced_folder "./registry-vm/data", "/vagrant_data"

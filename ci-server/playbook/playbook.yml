@@ -12,6 +12,9 @@
     server_user_name: "user"
     server_user_password: "us3rus3r"
 
+    registry_addr: "192.168.33.8"
+    registry_port: "5000"
+
   tasks:
   - name: Download and install gitlab
     ansible.builtin.include_role:
@@ -54,3 +57,7 @@
   - name: Configure gitlab runner
     ansible.builtin.include_role:
       name: gitlab-runner
+
+  - name: Configure registry
+    ansible.builtin.include_role:
+      name: configure-registry
