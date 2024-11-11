@@ -1,0 +1,37 @@
+- name: Change external url in /etc/gitlab/gitlab.rb
+  ansible.builtin.replace:
+    path: /etc/gitlab/gitlab.rb
+    regexp: "external_url 'http://gitlab.example.com'"
+    replace: "external_url 'http://{{ ci_server_address }}'"
+  become: true
+
+- name: Change puma port in /etc/gitlab/gitlab.rb
+  ansible.builtin.replace:
+    path: /etc/gitlab/gitlab.rb
+    regexp: "# puma['port'] = 8080"
+    replace: "puma['port'] = 8088"
+  become: true
+
+- name: Reconfigure gitlab-ctl
+  ansible.builtin.command: gitlab-ctl reconfigure
+  changed_when: true
+  become: true
+
+- name: Restart gitlab-ctl
+  ansible.builtin.command: gitlab-ctl restart
+  changed_when: true
+  become: true
+
+- name: Set root password with gitlab-rails runner
+  ansible.builtin.command: gitlab-rails runner /tmp/scripts/gitlab-set-root-password.rb
+  register: set_root_password
+  changed_when: set_root_password.rc != 0
+  become: true
+
+- name: Create new user with gitlab-rails runner and save PAT
+  ansible.builtin.command: gitlab-rails runner /tmp/scripts/gitlab-user-create.rb
+  ignore_errors: true
+  register: user_pat
+  changed_when: user_pat.rc != 0
+  when: user_pat is undefined
+  become: true

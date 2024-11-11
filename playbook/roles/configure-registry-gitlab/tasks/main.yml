@@ -1,0 +1,44 @@
+- name: Create /etc/gitlab/ssl dir
+  ansible.builtin.file:
+    path: /etc/gitlab/ssl
+    state: directory
+    mode: '0600'
+  become: true
+
+- name: Copy key to gitlab
+  ansible.builtin.copy:
+    src: "../registry-vm/data/{{ registry_addr }}.key"
+    dest: "/etc/gitlab/ssl/{{ registry_addr }}.key"
+    mode: "0600"
+  become: true
+
+- name: Copy certificate to gitlab
+  ansible.builtin.copy:
+    src: "../registry-vm/data/{{ registry_addr }}.crt"
+    dest: "/etc/gitlab/ssl/{{ registry_addr }}.crt"
+    mode: "0600"
+  become: true
+
+- name: Change registry external url in /etc/gitlab/gitlab.rb
+  ansible.builtin.replace:
+    path: /etc/gitlab/gitlab.rb
+    regexp: "# registry_external_url 'https://registry.example.com'"
+    replace: "registry_external_url 'https://{{ registry_addr }}:{{ registry_port }}'"
+  become: true
+
+- name: Change docker daemon.json
+  ansible.builtin.lineinfile:
+    path: /etc/docker/daemon.json
+    line: '{ "insecure-registries" : ["192.168.33.8:5000"] }'
+    create: true
+  become: true
+
+- name: Reconfigure gitlab-ctl
+  ansible.builtin.command: gitlab-ctl reconfigure
+  changed_when: true
+  become: true
+
+- name: Restart gitlab-ctl
+  ansible.builtin.command: gitlab-ctl restart
+  changed_when: true
+  become: true
