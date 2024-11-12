@@ -77,6 +77,13 @@
     remote_src: true
   become: true
 
+- name: Update ca certificates
+  ansible.builtin.command:
+    argv:
+      - update-ca-certificates
+  ignore_errors: true
+  become: true
+
 - name: Create dir for auth
   ansible.builtin.file:
     path: "{{ vhome }}/docker_reg_auth"

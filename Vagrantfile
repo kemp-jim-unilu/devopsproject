@@ -48,11 +48,14 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         '--cpus', '4'
       ]
     
+    subconfig.vm.provision :ansible, type: "ansible", run: "never" do |ansible|
+      ansible.playbook = "./playbook/playbook.yml"
+      ansible.limit = "all"
+    end
+    
     end  
   end
 
-  config.vm.provision "ansible" do |ansible|
-      ansible.playbook = "./playbook/playbook.yml"
-    end
+  
 
 end

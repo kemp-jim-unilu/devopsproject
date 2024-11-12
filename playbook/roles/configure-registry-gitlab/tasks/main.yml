@@ -33,6 +33,16 @@
     create: true
   become: true
 
+- name: Restart docker service
+  ansible.builtin.command:
+    argv:
+      - service
+      - docker
+      - restart
+  ignore_errors: true
+  become: true
+  changed_when: true
+
 - name: Reconfigure gitlab-ctl
   ansible.builtin.command: gitlab-ctl reconfigure
   changed_when: true
