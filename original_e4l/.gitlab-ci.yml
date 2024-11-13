@@ -1,0 +1,57 @@
+image: maven:latest
+
+stages:
+  - build
+  - upload
+  - deploy
+  - docker push
+
+cache:
+  paths:
+    - target/
+
+# build jar
+build_app:
+  image: gradle:8.3
+  stage: build
+  tags:
+    - integration
+  script:
+    - cd lu.uni.e4l.platform.api.dev/
+    - gradle clean build bootJar
+    - ls -al
+  artifacts:
+    paths:
+      - lu.uni.e4l.platform.api.dev/build/libs/*.jar
+
+upload_app:
+    stage: upload
+    tags:
+    - integration
+    script:
+    - echo "Deploy review app"
+    artifacts:
+        name: "my-app"
+        paths:
+        - lu.uni.e4l.platform.api.dev/build/libs/*.jar
+
+# save to artifact repo
+deploy:
+    stage: deploy
+    tags:
+    - integration-shell
+    script:
+    - cp lu.uni.e4l.platform.api.dev/build/libs/*.jar /shared/artefact-repository
+
+docker:
+  stage: docker push
+  tags:
+  - integration-2
+  script:
+  - cd lu.uni.e4l.platform.api.dev
+  - docker build -t lu.uni.e4l.platform.backend.dev:rc .
+  - docker image ls
+  - docker login -u "admin" -p "password" 192.168.33.8:5000
+  - docker tag lu.uni.e4l.platform.backend.dev:rc 192.168.33.8:5000/backend
+  - docker push 192.168.33.8:5000/backend
+  - docker logout
