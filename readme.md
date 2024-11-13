@@ -1,12 +1,14 @@
 # Devops project
 
 ### How to start the vms:
-> vagrant up
-> vagrant provision --provision-with ansible
+> sh vagrantup.sh
+After it is done initialize and push the repo with:
+> sh setup-repo.sh
+### How to destroy vms:
+> sh destroyvagrant.sh
 
 ### How to lint the playbook:
 > ansible-lint playbook
-
 
 ### How to print values in the playbook for debugging:
 Add this to playbook:
@@ -22,17 +24,17 @@ Add this to playbook:
 ## Registry commands (replace localhost by vm address if outside the vm):
 ### How to login and logout
 ```
-docker login localhost:5000 and enter admin and password
+docker login localhost:5001 and enter admin and password
 docker logout
 ```
 ### How to tag and push
 ```
 docker pull alpine:latest
-docker tag alpine:latest localhost:5000/myalpine
-docker push localhost:5000/myalpine
+docker tag alpine:latest localhost:5001/myalpine
+docker push localhost:5001/myalpine
 ```
 
 ### How to get repo list
 ```
-curl -u admin:password -v -X GET https://192.168.33.8:5000/v2/_catalog -k
+curl -u admin:password -v -X GET https://192.168.33.8:5001/v2/_catalog -k
 ```

@@ -29,7 +29,7 @@
 - name: Change docker daemon.json
   ansible.builtin.lineinfile:
     path: /etc/docker/daemon.json
-    line: '{ "insecure-registries" : ["192.168.33.8:5000"] }'
+    line: '{ "insecure-registries" : ["192.168.33.8:5001"] }'
     create: true
   become: true
 
