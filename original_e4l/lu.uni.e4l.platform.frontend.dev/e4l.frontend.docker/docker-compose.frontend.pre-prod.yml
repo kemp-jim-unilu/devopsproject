@@ -3,7 +3,7 @@ version: "3.5"
 services:
   e4l-frontend-preprod:
     restart: always
-    image: ${CI_REGISTRY_IMAGE}:rc
+    image: lu.uni.e4l.platform.frontend.dev:rc
     container_name: e4l-frontend-preprod
     ports:
       - 8884:80

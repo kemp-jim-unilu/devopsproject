@@ -3,15 +3,15 @@ image: maven:latest
 stages:
   - build
   - upload
-  - deploy
   - docker push
+  - deploy
 
 cache:
   paths:
     - target/
 
-# build jar
-build_app:
+# build backend jar
+build_backend:
   image: gradle:8.3
   stage: build
   tags:
@@ -24,34 +24,86 @@ build_app:
     paths:
       - lu.uni.e4l.platform.api.dev/build/libs/*.jar
 
-upload_app:
-    stage: upload
-    tags:
+# build frontend
+build_frontend:
+  image: node:15
+  stage: build
+  tags:
     - integration
-    script:
-    - echo "Deploy review app"
-    artifacts:
-        name: "my-app"
-        paths:
-        - lu.uni.e4l.platform.api.dev/build/libs/*.jar
+  script:
+    - cd lu.uni.e4l.platform.frontend.dev/
+    - npm install --save-dev webpack
+    - npm run build
+    - ls -al
+    - ls -al e4l.frontend.docker/web/dist/
+  artifacts:
+    paths:
+      - lu.uni.e4l.platform.frontend.dev/e4l.frontend.docker/web/dist/
 
 # save to artifact repo
-deploy:
-    stage: deploy
+upload_backend:
+    stage: upload
     tags:
     - integration-shell
     script:
-    - cp lu.uni.e4l.platform.api.dev/build/libs/*.jar /shared/artefact-repository
+    - cp lu.uni.e4l.platform.api.dev/build/libs/*.jar /shared/artefact-repository/backend-$CI_COMMIT_SHA
 
-docker:
+# build backend docker image and upload to registry
+docker_backend:
+  stage: docker push
+  tags:
+    - integration-2
+  script:
+  - cd lu.uni.e4l.platform.api.dev
+  - ls -al
+  - docker build -t lu.uni.e4l.platform.backend.dev:rc .
+  - docker image ls
+  - docker login -u "admin" -p "password" 192.168.33.8:5000
+  - docker tag lu.uni.e4l.platform.backend.dev:rc 192.168.33.8:5000/backend-$CI_COMMIT_SHA:rc
+  - docker push 192.168.33.8:5000/backend-$CI_COMMIT_SHA:rc
+  - docker image rm 192.168.33.8:5000/backend-$CI_COMMIT_SHA:rc
+  - docker image prune
+  - docker logout
+
+# build frontend docker image and upload to registry
+docker_frontend:
   stage: docker push
   tags:
   - integration-2
   script:
-  - cd lu.uni.e4l.platform.api.dev
-  - docker build -t lu.uni.e4l.platform.backend.dev:rc .
+  - cd lu.uni.e4l.platform.frontend.dev/
+  - ls -al
+  - ls -al ./e4l.frontend.docker/web
+  - docker build -t lu.uni.e4l.platform.frontend.dev:rc ./e4l.frontend.docker/web
   - docker image ls
   - docker login -u "admin" -p "password" 192.168.33.8:5000
-  - docker tag lu.uni.e4l.platform.backend.dev:rc 192.168.33.8:5000/backend
-  - docker push 192.168.33.8:5000/backend
+  - docker tag lu.uni.e4l.platform.frontend.dev:rc 192.168.33.8:5000/frontend-$CI_COMMIT_SHA:rc
+  - docker push 192.168.33.8:5000/frontend-$CI_COMMIT_SHA:rc
+  - docker image rm 192.168.33.8:5000/frontend-$CI_COMMIT_SHA:rc
+  - docker image prune
   - docker logout
+# deploy all three containers
+deploy_prod:
+  stage: deploy
+  tags:
+  - integration-2
+  script:
+  - docker container stop lu.uni.e4l.platform.backend.dev:rc
+  - docker container stop lu.uni.e4l.platform.frontend.dev:rc
+  - docker container stop mariadb:10.4.7
+  - docker container rm lu.uni.e4l.platform.backend.dev:rc
+  - docker container rm lu.uni.e4l.platform.frontend.dev:rc
+  - docker container rm mariadb:10.4.7
+  - docker image rm lu.uni.e4l.platform.backend.dev:rc
+  - docker image rm lu.uni.e4l.platform.frontend.dev:rc
+  - docker image rm mariadb:10.4.7
+  - docker login -u "admin" -p "password" 192.168.33.8:5000
+  - docker pull 192.168.33.8:5000/frontend-$CI_COMMIT_SHA:rc
+  - docker pull 192.168.33.8:5000/backend-$CI_COMMIT_SHA:rc
+  - docker tag 192.168.33.8:5000/backend-$CI_COMMIT_SHA:rc lu.uni.e4l.platform.backend.dev:rc
+  - docker tag 192.168.33.8:5000/frontend-$CI_COMMIT_SHA:rc lu.uni.e4l.platform.frontend.dev:rc
+  - cd lu.uni.e4l.platform.api.dev
+  - docker compose -f ./docker/docker-compose.db.yml up -d
+  - docker compose -f ./docker/docker-compose.backend.pre-prod.yml up -d
+  - cd ../lu.uni.e4l.platform.frontend.dev
+  - docker compose -f ./e4l.frontend.docker/docker-compose.frontend.pre-prod.yml up -d
