@@ -8,7 +8,7 @@
   vars:
     vhome: /home/vagrant
     registry_addr: "192.168.33.8"
-    registry_port: "5001"
+    registry_port: "5000"
     registry_username: "admin"
     registry_password: "password"
 
@@ -90,7 +90,7 @@
 
   - name: Create artefact repository
     ansible.builtin.file:
-      path: "{{ vhome }}/artefact-repository"
+      path: "/shared/artefact-repository"
       mode: '0777'
       state: directory
     become: true
@@ -119,7 +119,7 @@
     server_user_password: "us3rus3r"
 
     registry_addr: "192.168.33.8"
-    registry_port: "5001"
+    registry_port: "5000"
     repository_location: "../original_e4l"
 
   tasks:

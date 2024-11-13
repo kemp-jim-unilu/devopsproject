@@ -24,14 +24,14 @@ Add this to playbook:
 ## Registry commands (replace localhost by vm address if outside the vm):
 ### How to login and logout
 ```
-docker login localhost:5001 and enter admin and password
+docker login localhost:5000 and enter admin and password
 docker logout
 ```
 ### How to tag and push
 ```
 docker pull alpine:latest
-docker tag alpine:latest localhost:5001/myalpine
-docker push localhost:5001/myalpine
+docker tag alpine:latest localhost:5000/myalpine
+docker push localhost:5000/myalpine
 ```
 
 ### How to get repo list

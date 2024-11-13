@@ -64,3 +64,29 @@
       - shell
       - --run-untagged=true
   become: true
+
+- name: Register gitlab-runner with tag integration-2
+  ansible.builtin.command:
+    argv:
+      - gitlab-runner
+      - register
+      - --non-interactive
+      - --url
+      - http://{{ ci_server_address }}
+      - --registration-token
+      - "{{ registration_token.stdout }}"
+      - --description
+      - shell
+      - --tag-list
+      - integration-2
+      - --executor
+      - shell
+      - --run-untagged=true
+  become: true
+
+- name: Add gitlab-runner to docker group
+  ansible.builtin.user:
+    name: gitlab-runner
+    append: true
+    groups: docker
+  become: true
