@@ -1,4 +1,5 @@
 # Devops project
+The product is in the dir original_e4l.
 
 ### How to start the vms:
 > sh vagrantup.sh
