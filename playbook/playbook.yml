@@ -88,6 +88,20 @@
       state: directory
     become: true
 
+  - name: Create artefact backend dir
+    ansible.builtin.file:
+      path: "/shared/artefact-repository/backend"
+      mode: '0777'
+      state: directory
+    become: true
+
+  - name: Create artefact frontend dir
+    ansible.builtin.file:
+      path: "/shared/artefact-repository/frontend"
+      mode: '0777'
+      state: directory
+    become: true
+
   - name: Configure gitlab
     ansible.builtin.include_role:
       name: configure-gitlab

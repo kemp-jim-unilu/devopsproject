@@ -37,5 +37,5 @@ docker push localhost:5000/myalpine
 
 ### How to get repo list
 ```
-curl -u admin:password -v -X GET https://192.168.33.8:5001/v2/_catalog -k
+curl -u admin:password -v -X GET https://192.168.33.8:5000/v2/_catalog -k
 ```

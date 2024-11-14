@@ -38,15 +38,23 @@ build_frontend:
     - ls -al e4l.frontend.docker/web/dist/
   artifacts:
     paths:
-      - lu.uni.e4l.platform.frontend.dev/e4l.frontend.docker/web/dist/
+      - lu.uni.e4l.platform.frontend.dev/e4l.frontend.docker/web/
 
-# save to artifact repo
+# save backend to artefact repo
 upload_backend:
     stage: upload
     tags:
     - integration-shell
     script:
-    - cp lu.uni.e4l.platform.api.dev/build/libs/*.jar /shared/artefact-repository/backend-$CI_COMMIT_SHA
+    - cp lu.uni.e4l.platform.api.dev/build/libs/*.jar /shared/artefact-repository/backend/backend-$CI_COMMIT_SHA
+
+# save frontend to artefact repo
+upload_frontend:
+    stage: upload
+    tags:
+    - integration-shell
+    script:
+    - cp lu.uni.e4l.platform.frontend.dev/e4l.frontend.docker/web/ /shared/artefact-repository/frontend/frontend-$CI_COMMIT_SHA -r
 
 # build backend docker image and upload to registry
 docker_backend:
@@ -82,21 +90,30 @@ docker_frontend:
   - docker image rm 192.168.33.8:5000/frontend-$CI_COMMIT_SHA:rc
   - docker image prune
   - docker logout
+
+dummy_test:
+  stage: test
+  tags:
+  - integration-2
+  script:
+  - exit 0
+
 # deploy all three containers
 deploy_prod:
   stage: deploy
   tags:
   - integration-2
   script:
-  - docker container stop lu.uni.e4l.platform.backend.dev:rc || true
-  - docker container stop lu.uni.e4l.platform.frontend.dev:rc || true
-  - docker container stop mariadb:10.4.7 || true
-  - docker container rm lu.uni.e4l.platform.backend.dev:rc || true
-  - docker container rm lu.uni.e4l.platform.frontend.dev:rc || true
-  - docker container rm mariadb:10.4.7 || true
+  - docker container stop e4l-backend-preprod || true
+  - docker container stop e4l-frontend-preprod || true
+  - docker container stop e4l-db || true
+  - docker container rm e4l-backend-preprod || true
+  - docker container rm e4l-frontend-preprod || true
+  - docker container rm e4l-db || true
   - docker image rm lu.uni.e4l.platform.backend.dev:rc || true
   - docker image rm lu.uni.e4l.platform.frontend.dev:rc || true
   - docker image rm mariadb:10.4.7 || true
+  - docker network rm e4l-db-net || true
   - docker login -u "admin" -p "password" 192.168.33.8:5000
   - docker pull 192.168.33.8:5000/frontend-$CI_COMMIT_SHA:rc
   - docker pull 192.168.33.8:5000/backend-$CI_COMMIT_SHA:rc
