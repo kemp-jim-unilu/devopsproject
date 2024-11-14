@@ -1,0 +1,21 @@
+# Scenario 1:
+In this scenario we will create a failing testing and see that the pipeline fails.
+
+Open ./original_e4l/.gitlab-ci.yml and for the job dummy test change the script from exit 0 to exit 1.
+This will simulate a failing test.
+After editing the file goto ./original_e4l and run:
+git add .gitlab-ci.yml
+git commit -m "ci"
+git push http://user:us3rus3r@192.168.56.9/gitlab/user/e4l
+The changes have now been pushed.
+On the gitlab page, go to pipelines and the pipeline should now fail at the test stage.
+
+# Scenario 2:
+In this scenario we will change a string in the frontend and then see the changes in production.
+
+Open with a text editor the file ./original_e4l/lu.uni.e4l.platform.frontend.dev/src/public/language/en.json
+On line 5 add some string in front of "Here you can calculate your own personal energy..."
+Commit again as describe in scenario 1.
+Observe the pipeline on the gitlab server, it should suceed.
+Check the website on http://192.168.56.9:8884/
+The change should be visible.

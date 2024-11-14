@@ -1,5 +1,6 @@
 # Devops project
-The product is in the dir original_e4l.
+This file contains information about working on this project.
+For the file relevant for the project submission, look at the readme.txt
 
 ### How to start the vms:
 > sh vagrantup.sh

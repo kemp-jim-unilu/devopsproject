@@ -4,6 +4,7 @@ stages:
   - build
   - upload
   - docker push
+  - test
   - deploy
 
 cache:
