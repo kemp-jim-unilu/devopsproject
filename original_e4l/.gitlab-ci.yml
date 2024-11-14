@@ -88,15 +88,15 @@ deploy_prod:
   tags:
   - integration-2
   script:
-  - docker container stop lu.uni.e4l.platform.backend.dev:rc
-  - docker container stop lu.uni.e4l.platform.frontend.dev:rc
-  - docker container stop mariadb:10.4.7
-  - docker container rm lu.uni.e4l.platform.backend.dev:rc
-  - docker container rm lu.uni.e4l.platform.frontend.dev:rc
-  - docker container rm mariadb:10.4.7
-  - docker image rm lu.uni.e4l.platform.backend.dev:rc
-  - docker image rm lu.uni.e4l.platform.frontend.dev:rc
-  - docker image rm mariadb:10.4.7
+  - docker container stop lu.uni.e4l.platform.backend.dev:rc || true
+  - docker container stop lu.uni.e4l.platform.frontend.dev:rc || true
+  - docker container stop mariadb:10.4.7 || true
+  - docker container rm lu.uni.e4l.platform.backend.dev:rc || true
+  - docker container rm lu.uni.e4l.platform.frontend.dev:rc || true
+  - docker container rm mariadb:10.4.7 || true
+  - docker image rm lu.uni.e4l.platform.backend.dev:rc || true
+  - docker image rm lu.uni.e4l.platform.frontend.dev:rc || true
+  - docker image rm mariadb:10.4.7 || true
   - docker login -u "admin" -p "password" 192.168.33.8:5000
   - docker pull 192.168.33.8:5000/frontend-$CI_COMMIT_SHA:rc
   - docker pull 192.168.33.8:5000/backend-$CI_COMMIT_SHA:rc
