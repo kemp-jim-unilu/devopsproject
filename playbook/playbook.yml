@@ -76,15 +76,8 @@
 # copying all the scripts into /tmp is better due to problems with permissions
   - name: Copy scripts to vagrant vm
     ansible.builtin.copy:
-      src: ../ci-server/playbook/scripts
+      src: ../ci-server/data/scripts
       dest: /tmp
-      mode: u=rwx,g=rwx,o=rwx
-    become: true
-
-  - name: Copy initial repo to vagrant vm
-    ansible.builtin.copy:
-      src: ../ci-server/data/therepo
-      dest: /home/vagrant
       mode: u=rwx,g=rwx,o=rwx
     become: true
 
