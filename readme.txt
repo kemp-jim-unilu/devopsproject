@@ -1,6 +1,9 @@
 # Devops project
 This file contains information relevant for the project submission.
 
+Ansible version: 2.15.12
+Vagrant version: 2.4.1
+
 ### Status of the project
 The pipeline is not entirely finished:
 - There is only one type of test.
